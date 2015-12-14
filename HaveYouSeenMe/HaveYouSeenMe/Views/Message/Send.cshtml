@@ -1,0 +1,118 @@
+﻿@model HaveYouSeenMe.Models.MessageModel
+@{
+    ViewBag.Tittle = "Send";
+}
+<div id="messageForm">
+    <h2>Send Message</h2>
+    @using (Ajax.BeginForm(new AjaxOptions
+    {
+        Confirm = "Are you sure want to send this message?",
+        HttpMethod = "POST",
+        InsertionMode = InsertionMode.Replace,
+        LoadingElementId = "loading",
+        UpdateTargetId = "messageForm",
+        OnBegin = "beginRequest",
+        OnComplete = "endRequest"
+    }))
+    {
+        @Html.AntiForgeryToken()
+        @Html.ValidationSummary(true)
+
+        <fieldset>
+            <legend>MessageModel</legend>
+
+            <div class="editor-label">
+                @Html.LabelFor(model => model.From)
+            </div>
+            <div class="editor-field">
+                @Html.EditorFor(model => model.From)
+                @Html.ValidationMessageFor(model => model.From)
+            </div>
+
+            <div class="editor-label">
+                @Html.LabelFor(model => model.Email)
+            </div>
+            <div class="editor-field">
+                @Html.EditorFor(model => model.Email)
+                @Html.ValidationMessageFor(model => model.Email)
+            </div>
+
+            <div class="editor-label">
+                @Html.LabelFor(model => model.Subject)
+            </div>
+            <div class="editor-field">
+                @Html.EditorFor(model => model.Subject)
+                @Html.ValidationMessageFor(model => model.Subject)
+            </div>
+
+            <div class="editor-label">
+                @Html.LabelFor(model => model.Message)
+            </div>
+            <div class="editor-field">
+                @Html.EditorFor(model => model.Message)
+                @Html.ValidationMessageFor(model => model.Message)
+            </div>
+            <p>
+                <input type="submit" value="Send Message" />
+            </p>
+
+        </fieldset>
+    }
+</div>
+
+<div id="loading" style="display:none">
+    Send Message...
+</div>
+
+<div id="petPhoto">
+    @*@Ajax.ActionLink("Display pet picture", "GetPhoto", "Pet",
+            new RouteValueDictionary { { "id", ViewBag.PetName} },
+            new AjaxOptions {
+                HttpMethod = "POST",
+                InsertionMode = InsertionMode.Replace,
+                LoadingElementId = "loadingPhoto",
+                UpdateTargetId = "petPhoto"
+
+            })*@
+    <a href="#" id="getPhoto">Display pet picture</a>
+</div>
+<div id="loadingPhoto" style="display:none">
+    Loading Pet...
+</div>
+<img src="@ViewBag.Photo" style="width:150px;height:150px"/>
+<div>
+    @Html.ActionLink("Back to List", "Index");
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    <script>
+        function beginRequest() {
+            $("messageForm").hide();
+        }
+        function endRequest() {
+            $("messageForm").show();
+        }
+    </script>
+    <script>
+        $(document).ready(function () {
+            $("#getPhoto").on("click", function (e) {
+                e.preventDefault();
+                $.ajax({
+                    url: "Pet/GetPhoto/dog",
+                    type: "POST",
+                    dataType: "html",
+                    beforeSend: function () {
+                        $("#loadingPhoto").show();
+                    },
+                    complete: function () {
+                        $("#loadingPhoto").hide();
+                    },
+                    success: function () {
+                        $("#petPhoto").html(data);
+                    }
+                });
+            });
+        });
+    </script>
+}
